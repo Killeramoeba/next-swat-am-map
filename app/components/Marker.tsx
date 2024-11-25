@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+import { useDraggable } from "@dnd-kit/core";
 
 type MarkerProps = {
+  id: number;
   x: number;
   y: number;
   backgroundImage: string;
@@ -12,6 +14,7 @@ type MarkerProps = {
 };
 
 export default function Marker({
+  id,
   x,
   y,
   type,
@@ -19,9 +22,16 @@ export default function Marker({
   onClick,
   backgroundImage,
 }: MarkerProps) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: id.toString(),
+  });
+
   return (
     <div
-      className={`bg-center border-zinc-400 border box-border flex items-center justify-center shadow bg-white absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 bg-cover ${
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`bg-center border-zinc-400 border box-border flex items-center justify-center shadow bg-white absolute cursor-move bg-cover ${
         selected ? "ring-2 ring-blue-500" : ""
       }`}
       style={{
@@ -30,8 +40,11 @@ export default function Marker({
         width: `2.5%`,
         height: `2.5%`,
         backgroundImage: `url(${backgroundImage})`,
+        transform: transform
+          ? `translate(-50%, -50%) translate3d(${transform.x}px, ${transform.y}px, 0)`
+          : "translate(-50%, -50%)",
       }}
       onClick={onClick}
-    ></div>
+    />
   );
 }
