@@ -17,7 +17,6 @@ export default function Marker({
   id,
   x,
   y,
-  type,
   selected,
   onClick,
   backgroundImage,

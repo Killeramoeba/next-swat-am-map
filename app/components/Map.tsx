@@ -20,10 +20,6 @@ export default function Map() {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
   const [currentType, setCurrentType] = useState<MarkerData["type"]>("Crate");
-  const [imageDimensions, setImageDimensions] = useState({
-    width: 0,
-    height: 0,
-  });
   const [isIconModalOpen, setIsIconModalOpen] = useState(false);
   const [pendingMarker, setPendingMarker] =
     useState<Partial<MarkerData> | null>(null);
