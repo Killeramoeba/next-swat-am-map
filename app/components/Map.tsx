@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Marker from "./Marker";
 import MarkerMenu from "./MarkerMenu";
 import IconModal from "./IconModal";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { pusherClient } from "../lib/pusher";
 
 type MarkerData = {
   id: number;
@@ -23,6 +24,33 @@ export default function Map() {
   const [isIconModalOpen, setIsIconModalOpen] = useState(false);
   const [pendingMarker, setPendingMarker] =
     useState<Partial<MarkerData> | null>(null);
+
+  useEffect(() => {
+    // Subscribe to Pusher channel
+    const channel = pusherClient.subscribe("markers-channel");
+
+    channel.bind("markers-update", (data: MarkerData[]) => {
+      setMarkers(data);
+    });
+
+    return () => {
+      pusherClient.unsubscribe("markers-channel");
+    };
+  }, []);
+
+  const broadcastMarkers = async (updatedMarkers: MarkerData[]) => {
+    try {
+      await fetch("/api/markers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedMarkers),
+      });
+    } catch (error) {
+      console.error("Error broadcasting markers:", error);
+    }
+  };
 
   const handleMapClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (e.target !== e.currentTarget) {
@@ -49,7 +77,9 @@ export default function Map() {
         backgroundImage,
         label: `${currentType} ${markers.length + 1}`,
       };
-      setMarkers([...markers, newMarker]);
+      const updatedMarkers = [...markers, newMarker];
+      setMarkers(updatedMarkers);
+      broadcastMarkers(updatedMarkers);
       setPendingMarker(null);
     }
   };
@@ -70,13 +100,14 @@ export default function Map() {
     const deltaXPercent = (delta.x / rect.width) * 100;
     const deltaYPercent = (delta.y / rect.height) * 100;
 
-    setMarkers(
-      markers.map((m) =>
-        m.id === markerId
-          ? { ...m, x: m.x + deltaXPercent, y: m.y + deltaYPercent }
-          : m
-      )
+    const updatedMarkers = markers.map((m) =>
+      m.id === markerId
+        ? { ...m, x: m.x + deltaXPercent, y: m.y + deltaYPercent }
+        : m
     );
+
+    setMarkers(updatedMarkers);
+    broadcastMarkers(updatedMarkers);
   };
 
   return (
