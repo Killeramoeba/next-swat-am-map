@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Marker from "./Marker";
 import MarkerMenu from "./MarkerMenu";
@@ -32,6 +32,25 @@ export default function Map() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [sharedUrl, setSharedUrl] = useState<string | null>(null);
 
+  const subscribeToChannel = useCallback(
+    (channelName: string) => {
+      const channel = pusherClient.subscribe(channelName);
+
+      channel.bind("markers-update", (data: MarkerData[]) => {
+        setMarkers(data);
+        setIsInitialized(true);
+      });
+
+      channel.bind("client-new-member", () => {
+        broadcastMarkers(markers, channelName);
+      });
+
+      // Notify other clients
+      channel.trigger("client-new-member", {});
+    },
+    [markers]
+  );
+
   useEffect(() => {
     const channelParam = searchParams.get("channel");
     if (channelParam) {
@@ -41,23 +60,7 @@ export default function Map() {
     } else {
       setIsInitialized(true);
     }
-  }, [searchParams]);
-
-  const subscribeToChannel = (channelName: string) => {
-    const channel = pusherClient.subscribe(channelName);
-
-    channel.bind("markers-update", (data: MarkerData[]) => {
-      setMarkers(data);
-      setIsInitialized(true);
-    });
-
-    channel.bind("client-new-member", () => {
-      broadcastMarkers(markers, channelName);
-    });
-
-    // Notify other clients
-    channel.trigger("client-new-member", {});
-  };
+  }, [searchParams, subscribeToChannel]);
 
   const handleShare = (channelName: string) => {
     setChannel(channelName);
