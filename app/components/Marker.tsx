@@ -35,7 +35,9 @@ export default function Marker({
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    onDoubleClick?.();
+    setTimeout(() => {
+      onDoubleClick?.();
+    }, 0);
   };
 
   return (

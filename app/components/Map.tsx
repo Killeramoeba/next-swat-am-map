@@ -149,22 +149,16 @@ export default function Map() {
   const handleMarkerDelete = async (markerId: number) => {
     if (!isInitialized) return;
 
+    setSelectedMarker(null);
     const updatedMarkers = markers.filter((m) => m.id !== markerId);
+    setMarkers(updatedMarkers);
 
     if (channel) {
       try {
-        // First broadcast the update
         await broadcastMarkers(updatedMarkers, channel);
-        // Only update local state after successful broadcast
-        setMarkers(updatedMarkers);
-        setSelectedMarker(null);
       } catch (error) {
         console.error("Error deleting marker:", error);
       }
-    } else {
-      // If not in sharing mode, just update local state
-      setMarkers(updatedMarkers);
-      setSelectedMarker(null);
     }
   };
 
