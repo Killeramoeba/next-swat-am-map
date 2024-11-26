@@ -9,7 +9,6 @@ import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { pusherClient } from "../lib/pusher";
 import ShareMenu from "./ShareMenu";
 import MarkerSelector from "./MarkerSelector";
-import { iconsByType } from "../lib/icons";
 
 type MarkerData = {
   id: number;
@@ -25,8 +24,6 @@ export default function Map() {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
   const [currentType, setCurrentType] = useState<MarkerData["type"]>("Crate");
-  const [pendingMarker, setPendingMarker] =
-    useState<Partial<MarkerData> | null>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [channel, setChannel] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
