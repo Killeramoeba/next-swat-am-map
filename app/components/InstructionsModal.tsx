@@ -50,7 +50,7 @@ export default function InstructionsModal() {
             className="mr-2"
           />
           <label htmlFor="dontShowAgain" className="text-black text-sm">
-            Don't show this again
+            Don&apos;t show this again
           </label>
         </div>
 
