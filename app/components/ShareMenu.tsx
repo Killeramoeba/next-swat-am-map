@@ -26,7 +26,7 @@ export default function ShareMenu({
       {!isSharing && (
         <button
           onClick={() => setIsPromptOpen(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className="text-xs px-4 py-2 bg-blue-500 text-white rounded"
         >
           Share Map
         </button>
@@ -67,11 +67,11 @@ export default function ShareMenu({
             type="text"
             value={sharedUrl}
             readOnly
-            className="border p-2 text-black rounded"
+            className="text-xs border p-2 text-black rounded"
           />
           <button
             onClick={() => navigator.clipboard.writeText(sharedUrl)}
-            className="px-4 py-2 bg-gray-200 text-black rounded"
+            className="text-xs px-4 py-2 bg-gray-200 text-black rounded"
           >
             Copy
           </button>

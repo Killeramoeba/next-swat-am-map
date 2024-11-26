@@ -15,7 +15,7 @@ export default function MarkerMenu({
         <button
           key={type}
           onClick={() => onTypeChange(type)}
-          className={`px-4 py-2 rounded ${
+          className={`text-xs px-4 py-2 rounded ${
             currentType === type
               ? "bg-blue-500 text-white"
               : "bg-gray-200 text-black"
