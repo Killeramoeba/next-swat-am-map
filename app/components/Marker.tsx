@@ -38,8 +38,8 @@ export default function Marker({
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        width: `2.5%`,
-        height: `2.5%`,
+        width: `3%`,
+        height: `3%`,
         backgroundImage: `url(${backgroundImage})`,
         transform: transform
           ? `translate(-50%, -50%) translate3d(${transform.x}px, ${transform.y}px, 0)`
