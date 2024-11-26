@@ -27,6 +27,17 @@ export default function Marker({
     id: id.toString(),
   });
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick?.();
+  };
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onDoubleClick?.();
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -45,8 +56,8 @@ export default function Marker({
           ? `translate(-50%, -50%) translate3d(${transform.x}px, ${transform.y}px, 0)`
           : "translate(-50%, -50%)",
       }}
-      onClick={onClick}
-      onDoubleClick={onDoubleClick}
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
     />
   );
 }
