@@ -11,6 +11,7 @@ type MarkerProps = {
   type: "Crate" | "Item" | "Objective";
   selected?: boolean;
   onClick?: () => void;
+  onDoubleClick?: () => void;
 };
 
 export default function Marker({
@@ -20,6 +21,7 @@ export default function Marker({
   selected,
   onClick,
   backgroundImage,
+  onDoubleClick,
 }: MarkerProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: id.toString(),
@@ -44,6 +46,7 @@ export default function Marker({
           : "translate(-50%, -50%)",
       }}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
     />
   );
 }

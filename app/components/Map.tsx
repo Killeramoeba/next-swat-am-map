@@ -151,6 +151,15 @@ export default function Map() {
     broadcastMarkers(updatedMarkers, channel!);
   };
 
+  const handleMarkerDelete = (markerId: number) => {
+    const updatedMarkers = markers.filter((m) => m.id !== markerId);
+    setMarkers(updatedMarkers);
+    setSelectedMarker(null);
+    if (channel) {
+      broadcastMarkers(updatedMarkers, channel);
+    }
+  };
+
   return (
     <div className="pt-4 pb-4">
       <div className="flex justify-between items-center">
@@ -182,6 +191,7 @@ export default function Map() {
                 {...marker}
                 selected={selectedMarker === marker.id}
                 onClick={() => setSelectedMarker(marker.id)}
+                onDoubleClick={() => handleMarkerDelete(marker.id)}
               />
             ))}
           </div>
