@@ -5,10 +5,11 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Marker from "./Marker";
 import MarkerMenu from "./MarkerMenu";
-import IconModal from "./IconModal";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { pusherClient } from "../lib/pusher";
 import ShareMenu from "./ShareMenu";
+import MarkerSelector from "./MarkerSelector";
+import { iconsByType } from "../lib/icons";
 
 type MarkerData = {
   id: number;
@@ -24,13 +25,13 @@ export default function Map() {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
   const [currentType, setCurrentType] = useState<MarkerData["type"]>("Crate");
-  const [isIconModalOpen, setIsIconModalOpen] = useState(false);
   const [pendingMarker, setPendingMarker] =
     useState<Partial<MarkerData> | null>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [channel, setChannel] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [sharedUrl, setSharedUrl] = useState<string | null>(null);
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
 
   const subscribeToChannel = useCallback(
     (channelName: string) => {
@@ -97,7 +98,7 @@ export default function Map() {
   };
 
   const handleMapClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (!isInitialized) return;
+    if (!isInitialized || !selectedIcon) return;
 
     if (e.target !== e.currentTarget) {
       return;
@@ -107,26 +108,19 @@ export default function Map() {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-    setPendingMarker({
+    const newMarker: MarkerData = {
       id: Date.now(),
       x,
       y,
       type: currentType,
-    });
-    setIsIconModalOpen(true);
-  };
+      backgroundImage: selectedIcon,
+      label: `${currentType} ${markers.length + 1}`,
+    };
 
-  const handleIconSelect = (backgroundImage: string) => {
-    if (pendingMarker) {
-      const newMarker: MarkerData = {
-        ...(pendingMarker as MarkerData),
-        backgroundImage,
-        label: `${currentType} ${markers.length + 1}`,
-      };
-      const updatedMarkers = [...markers, newMarker];
-      setMarkers(updatedMarkers);
-      broadcastMarkers(updatedMarkers, channel!);
-      setPendingMarker(null);
+    const updatedMarkers = [...markers, newMarker];
+    setMarkers(updatedMarkers);
+    if (channel) {
+      broadcastMarkers(updatedMarkers, channel);
     }
   };
 
@@ -199,6 +193,11 @@ export default function Map() {
               isSharing={isSharing}
             />
           </div>
+          <MarkerSelector
+            currentType={currentType}
+            selectedIcon={selectedIcon}
+            onIconSelect={setSelectedIcon}
+          />
           <DndContext onDragEnd={handleDragEnd}>
             <div
               className="relative w-full h-0"
@@ -226,12 +225,6 @@ export default function Map() {
               </div>
             </div>
           </DndContext>
-          <IconModal
-            isOpen={isIconModalOpen}
-            onClose={() => setIsIconModalOpen(false)}
-            markerType={currentType}
-            onSelectIcon={handleIconSelect}
-          />
         </>
       )}
     </div>
