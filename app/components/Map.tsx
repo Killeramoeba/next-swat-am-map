@@ -35,6 +35,7 @@ export default function Map() {
   const subscribeToChannel = useCallback(
     (channelName: string) => {
       const channel = pusherClient.subscribe(channelName);
+      setIsSharing(true);
 
       channel.bind("markers-update", (data: MarkerData[]) => {
         setMarkers(data);
@@ -57,6 +58,10 @@ export default function Map() {
       setChannel(channelParam);
       setIsSharing(true);
       subscribeToChannel(channelParam);
+
+      const url = new URL(window.location.href);
+      url.searchParams.set("channel", channelParam);
+      setSharedUrl(url.toString());
     } else {
       setIsInitialized(true);
     }
@@ -66,7 +71,6 @@ export default function Map() {
     setChannel(channelName);
     setIsSharing(true);
     subscribeToChannel(channelName);
-
     const url = new URL(window.location.href);
     url.searchParams.set("channel", channelName);
     setSharedUrl(url.toString());
@@ -151,12 +155,25 @@ export default function Map() {
     broadcastMarkers(updatedMarkers, channel!);
   };
 
-  const handleMarkerDelete = (markerId: number) => {
+  const handleMarkerDelete = async (markerId: number) => {
+    if (!isInitialized) return;
+
     const updatedMarkers = markers.filter((m) => m.id !== markerId);
-    setMarkers(updatedMarkers);
-    setSelectedMarker(null);
+
     if (channel) {
-      broadcastMarkers(updatedMarkers, channel);
+      try {
+        // First broadcast the update
+        await broadcastMarkers(updatedMarkers, channel);
+        // Only update local state after successful broadcast
+        setMarkers(updatedMarkers);
+        setSelectedMarker(null);
+      } catch (error) {
+        console.error("Error deleting marker:", error);
+      }
+    } else {
+      // If not in sharing mode, just update local state
+      setMarkers(updatedMarkers);
+      setSelectedMarker(null);
     }
   };
 
