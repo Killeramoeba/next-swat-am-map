@@ -179,47 +179,61 @@ export default function Map() {
 
   return (
     <div className="pt-4 pb-4">
-      <div className="flex justify-between items-center">
-        <MarkerMenu currentType={currentType} onTypeChange={setCurrentType} />
-        <ShareMenu
-          onShare={handleShare}
-          sharedUrl={sharedUrl}
-          isSharing={isSharing}
-        />
-      </div>
-      <DndContext onDragEnd={handleDragEnd}>
-        <div
-          className="relative w-full h-0"
-          style={{ paddingBottom: "92.375%" }}
-        >
-          <div className="absolute inset-0" onClick={handleMapClick}>
-            <Image
-              src="/swatafterterrain.jpg"
-              alt="SWAT: Aftermath Terrain"
-              fill
-              style={{ objectFit: "contain" }}
-              sizes="(max-width: 800px) 100vw, 800px"
-              className="select-none pointer-events-none"
-              priority
-            />
-            {markers.map((marker) => (
-              <Marker
-                key={marker.id}
-                {...marker}
-                selected={selectedMarker === marker.id}
-                onClick={() => setSelectedMarker(marker.id)}
-                onDoubleClick={() => handleMarkerDelete(marker.id)}
-              />
-            ))}
-          </div>
+      {!isInitialized ? (
+        <div className="flex flex-col justify-center items-center h-[600px] gap-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-blue-500"></div>
+          {channel && (
+            <p className="text-lg text-gray-200">Waiting for channel data...</p>
+          )}
         </div>
-      </DndContext>
-      <IconModal
-        isOpen={isIconModalOpen}
-        onClose={() => setIsIconModalOpen(false)}
-        markerType={currentType}
-        onSelectIcon={handleIconSelect}
-      />
+      ) : (
+        <>
+          <div className="flex justify-between items-center">
+            <MarkerMenu
+              currentType={currentType}
+              onTypeChange={setCurrentType}
+            />
+            <ShareMenu
+              onShare={handleShare}
+              sharedUrl={sharedUrl}
+              isSharing={isSharing}
+            />
+          </div>
+          <DndContext onDragEnd={handleDragEnd}>
+            <div
+              className="relative w-full h-0"
+              style={{ paddingBottom: "92.375%" }}
+            >
+              <div className="absolute inset-0" onClick={handleMapClick}>
+                <Image
+                  src="/swatafterterrain.jpg"
+                  alt="SWAT: Aftermath Terrain"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  sizes="(max-width: 800px) 100vw, 800px"
+                  className="select-none pointer-events-none"
+                  priority
+                />
+                {markers.map((marker) => (
+                  <Marker
+                    key={marker.id}
+                    {...marker}
+                    selected={selectedMarker === marker.id}
+                    onClick={() => setSelectedMarker(marker.id)}
+                    onDoubleClick={() => handleMarkerDelete(marker.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </DndContext>
+          <IconModal
+            isOpen={isIconModalOpen}
+            onClose={() => setIsIconModalOpen(false)}
+            markerType={currentType}
+            onSelectIcon={handleIconSelect}
+          />
+        </>
+      )}
     </div>
   );
 }
